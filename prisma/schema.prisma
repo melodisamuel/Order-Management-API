@@ -1,5 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// This is your Prisma schema file
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
@@ -13,13 +13,75 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-model users {
+model User {
   id        String   @id @default(uuid())  // Unique identifier (UUID)
   name      String   // User's full name
   email     String   @unique               // User's email, must be unique
   password  String   // Hashed password
-  role      String   // Role ('Admin' or 'Customer')
+  role      UserRole @default(Customer)    // Correct enum name and default value
   createdAt DateTime @default(now())        // Timestamp of account creation
   updatedAt DateTime @updatedAt             // Timestamp of last update
+}
+
+enum UserRole {
+  Admin
+  Customer
+}
+
+model Product {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String
+  description String
+  price       Decimal  @db.Decimal
+  category    String
+  stock       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  orderItems  OrderItem[]
+
+  @@index([category])  // Index for faster query on category
+}
+
+model Customer {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  email     String   @unique
+  address   String
+  phone     String
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id          String     @id @default(uuid()) @db.Uuid
+  customerId  String     @db.Uuid
+  customer    Customer   @relation(fields: [customerId], references: [id])
+  orderDate   DateTime   @default(now())
+  status      OrderStatus
+  items       OrderItem[]
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model OrderItem {
+  id          String     @id @default(uuid()) @db.Uuid
+  orderId     String     @db.Uuid
+  productId   String     @db.Uuid
+  quantity    Int
+  priceAtPurchase Decimal @db.Decimal
+
+  order       Order      @relation(fields: [orderId], references: [id])
+  product     Product    @relation(fields: [productId], references: [id])
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+enum OrderStatus {
+  Pending
+  Shipped
+  Delivered
+  Cancelled
 }
