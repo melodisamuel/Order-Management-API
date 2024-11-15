@@ -76,9 +76,44 @@ exports.login = catchAsync(async (req, res, next) => {
   }); 
 })
 
+exports.protect = catchAsync(async (req, res, next) => {
+  let token;
+
+  // Get the token from the Authorization header (Bearer token)
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1]; // Bearer token
+  }
+
+  if (!token) {
+    return next(new AppError('You are not logged in! Please log in to get access.', 401));
+  }
+
+  // Verify the token and decode the payload
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+  // Check if the user still exists in the database
+  const user = await prisma.user.findUnique({
+    where: { id: decoded.id },
+  });
+
+  if (!user) {
+    return next(new AppError('The user belonging to this token no longer exists.', 401));
+  }
+
+  // Attach user to the request object
+  req.user = user;
+
+  next();
+});
+
 exports.getProfile = catchAsync(async (req, res, next) => {
   // The user information is now attached to req.user from the protect middleware
   const user = req.user;
+
+  // Ensure user object is available
+  if (!user) {
+    return next(new AppError('User not found.', 404));
+  }
 
   // Send back the user's profile details
   res.status(200).json({
@@ -92,3 +127,4 @@ exports.getProfile = catchAsync(async (req, res, next) => {
     }
   });
 });
+
