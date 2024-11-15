@@ -18,7 +18,6 @@ router.post(
 router.get(
   '/',
   protect,
- restrictTo('Admin'),
  orderController.getOrders
 );
 
