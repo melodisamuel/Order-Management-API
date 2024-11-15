@@ -28,6 +28,23 @@ class ProductRepository {
   async deleteProduct(id) {
     return await prisma.product.delete({ where: { id } });
   }
+
+  /**
+   * Update stock for a product.
+   * @param {string} productId - The ID of the product.
+   * @param {number} quantityChange - Positive to increase, negative to decrease.
+   * @returns {Promise<Object>} - The updated product.
+   */
+  async updateStock(productId, quantityChange) {
+    return await prisma.product.update({
+      where: { id: productId },
+      data: {
+        stock: {
+          increment: quantityChange, // Negative values will decrease stock.
+        },
+      },
+    });
+  }
 }
 
 module.exports = new ProductRepository();

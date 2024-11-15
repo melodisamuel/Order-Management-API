@@ -7,8 +7,10 @@ const morgan = require("morgan");
 const { PrismaClient } = require("@prisma/client");
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("../src/controllers/errorController");
+
 const authRoute = require("../src/routes/authRoute");
 const productRoute = require("../src/routes/productRoute");
+const orderRoute = require("../src/routes/orderRoutes");
 
 // Initialize Prisma client and express app
 const prisma = new PrismaClient();
@@ -36,6 +38,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // Define routes
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/product", productRoute);
+app.use("/api/v1/order", orderRoute);
 
 // Handle undefined routes
 app.all("*", (req, res, next) => {
