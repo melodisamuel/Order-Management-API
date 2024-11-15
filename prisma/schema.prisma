@@ -12,6 +12,11 @@ model User {
   name      String
   email     String   @unique
   password  String
+  passwordConfirm     String
+  passwordChangedAt   DateTime?
+  passwordResetToken  String?
+  passwordResetExpires DateTime?
+  active              Boolean     @default(true)
   role      UserRole @default(Customer)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
