@@ -12,6 +12,7 @@ model User {
   name                 String
   email                String    @unique
   password             String
+  passwordConfirm      String    @default("")
   passwordResetToken   String?
   passwordResetExpires DateTime?
   active               Boolean   @default(true)
