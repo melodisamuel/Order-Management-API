@@ -1,6 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const catchAsync = require("../utils/catchAsync");
+const catchAsync = require("../middleware/catchAsync");
 const jwt = require('jsonwebtoken');
 const AppError = require("../utils/appError");
 const bcrypt = require('bcryptjs');
@@ -76,35 +76,35 @@ exports.login = catchAsync(async (req, res, next) => {
   }); 
 })
 
-exports.protect = catchAsync(async (req, res, next) => {
-  let token;
+// exports.protect = catchAsync(async (req, res, next) => {
+//   let token;
 
-  // Get the token from the Authorization header (Bearer token)
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    token = req.headers.authorization.split(' ')[1]; // Bearer token
-  }
+//   // Get the token from the Authorization header (Bearer token)
+//   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+//     token = req.headers.authorization.split(' ')[1]; // Bearer token
+//   }
 
-  if (!token) {
-    return next(new AppError('You are not logged in! Please log in to get access.', 401));
-  }
+//   if (!token) {
+//     return next(new AppError('You are not logged in! Please log in to get access.', 401));
+//   }
 
-  // Verify the token and decode the payload
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//   // Verify the token and decode the payload
+//   const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-  // Check if the user still exists in the database
-  const user = await prisma.user.findUnique({
-    where: { id: decoded.id },
-  });
+//   // Check if the user still exists in the database
+//   const user = await prisma.user.findUnique({
+//     where: { id: decoded.id },
+//   });
 
-  if (!user) {
-    return next(new AppError('The user belonging to this token no longer exists.', 401));
-  }
+//   if (!user) {
+//     return next(new AppError('The user belonging to this token no longer exists.', 401));
+//   }
 
-  // Attach user to the request object
-  req.user = user;
+//   // Attach user to the request object
+//   req.user = user;
 
-  next();
-});
+//   next();
+// });
 
 exports.getProfile = catchAsync(async (req, res, next) => {
   // The user information is now attached to req.user from the protect middleware
