@@ -22,6 +22,4 @@ class UserRepository {
   }
 }
 
-exports.protect = 
-
 module.exports = new UserRepository();
