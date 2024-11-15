@@ -11,6 +11,7 @@ const globalErrorHandler = require("../src/controllers/errorController");
 const authRoute = require("../src/routes/authRoute");
 const productRoute = require("../src/routes/productRoute");
 const orderRoute = require("../src/routes/orderRoutes");
+const customerRoute = require("../src/routes/customerRoutes");
 
 // Initialize Prisma client and express app
 const prisma = new PrismaClient();
@@ -20,6 +21,8 @@ const app = express();
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
+
+
 
 // Body parser to read data from req.body
 app.use(express.json({ limit: "10kb" }));
@@ -39,6 +42,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/product", productRoute);
 app.use("/api/v1/order", orderRoute);
+app.use("/api/v1/customer", customerRoute);
 
 // Handle undefined routes
 app.all("*", (req, res, next) => {

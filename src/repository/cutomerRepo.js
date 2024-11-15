@@ -1,37 +1,44 @@
-const prisma = require('../prismaClient'); // Prisma client instance
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
-// Get all customers
-exports.getAllCustomers = async (filter = {}) => {
-  return await prisma.customer.findMany({
-    where: filter,
-  });
-};
+class CustomerRepository {
+  // Create a new customer
+  async createCustomer(data) {
+    return await prisma.customer.create({ data });
+  }
 
-// Get a single customer by ID
-exports.getCustomerById = async (id) => {
-  return await prisma.customer.findUnique({
-    where: { id },
-  });
-};
+  // Get all customers with filter and pagination
+  async getAllCustomers(filter = {}, pagination) {
+    return await prisma.customer.findMany({
+      where: filter,
+      skip: pagination?.skip,
+      take: pagination?.limit,
+    });
+  }
 
-// Create a new customer
-exports.createCustomer = async (data) => {
-  return await prisma.customer.create({
-    data,
-  });
-};
+  // Get a customer by ID
+  async getCustomerById(id) {
+    return await prisma.customer.findUnique({ where: { id } });
+  }
 
-// Update customer details
-exports.updateCustomer = async (id, data) => {
-  return await prisma.customer.update({
-    where: { id },
-    data,
-  });
-};
+  // Get a customer by email
+  async getCustomerByEmail(email) {
+    return await prisma.customer.findUnique({ where: { email } });
+  }
 
-// Delete a customer
-exports.deleteCustomer = async (id) => {
-  return await prisma.customer.delete({
-    where: { id },
-  });
-};
+  // Update customer details
+  async updateCustomer(id, data) {
+    return await prisma.customer.update({
+      where: { id },
+      data,
+    });
+  }
+
+  // Delete a customer by ID
+  async deleteCustomer(id) {
+    return await prisma.customer.delete({ where: { id } });
+  }
+}
+
+// Export a single instance of the repository
+module.exports = new CustomerRepository();
