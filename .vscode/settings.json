@@ -7,9 +7,9 @@
             "driver": "PostgreSQL",
             "name": "PG Local",
             "database": "postgres",
-            "username": "postgres",
-            "password": "postgres",
-            "connectionTimeout": 30
+            "username": "apple",
+            "connectionTimeout": 30,
+            "password": "postgres"
         }
     ]
 }

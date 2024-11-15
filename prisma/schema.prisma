@@ -8,36 +8,32 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
-  passwordConfirm     String
-  passwordChangedAt   DateTime?
-  passwordResetToken  String?
+  id                   String    @id @default(uuid())
+  name                 String
+  email                String    @unique
+  password             String
+  passwordResetToken   String?
   passwordResetExpires DateTime?
-  active              Boolean     @default(true)
-  role      UserRole @default(Customer)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  active               Boolean   @default(true)
+  role                 UserRole  @default(Customer)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 }
 
 model Product {
-  id          String      @id @default(uuid()) @db.Uuid
+  id          String      @id @default(uuid())
   name        String
   description String
-  price       Decimal     @db.Decimal
+  price       Decimal
   category    String
   stock       Int
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   orderItems  OrderItem[]
-
-  @@index([category])
 }
 
 model Customer {
-  id        String   @id @default(uuid()) @db.Uuid
+  id        String   @id @default(uuid())
   name      String
   email     String   @unique
   address   String
@@ -48,8 +44,8 @@ model Customer {
 }
 
 model Order {
-  id         String      @id @default(uuid()) @db.Uuid
-  customerId String      @db.Uuid
+  id         String      @id @default(uuid())
+  customerId String
   orderDate  DateTime    @default(now())
   status     OrderStatus
   createdAt  DateTime    @default(now())
@@ -59,11 +55,11 @@ model Order {
 }
 
 model OrderItem {
-  id              String   @id @default(uuid()) @db.Uuid
-  orderId         String   @db.Uuid
-  productId       String   @db.Uuid
+  id              String   @id @default(uuid())
+  orderId         String
+  productId       String
   quantity        Int
-  priceAtPurchase Decimal  @db.Decimal
+  priceAtPurchase Decimal
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   order           Order    @relation(fields: [orderId], references: [id])

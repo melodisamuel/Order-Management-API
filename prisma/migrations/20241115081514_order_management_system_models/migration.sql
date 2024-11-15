@@ -1,12 +1,4 @@
-CREATE TABLE IF NOT EXISTS users (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),  -- Unique identifier (UUID)
-  name VARCHAR(255) NOT NULL,                      -- User's full name
-  email VARCHAR(255) UNIQUE NOT NULL,              -- User's email, must be unique
-  password VARCHAR(255) NOT NULL,                  -- Hashed password
-  role VARCHAR(50) NOT NULL,                       -- Role ('Admin' or 'Customer')
-  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,   -- Timestamp of account creation
-  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP   -- Timestamp of last update
-);-- CreateEnum
+-- CreateEnum
 CREATE TYPE "UserRole" AS ENUM ('Admin', 'Customer');
 
 -- CreateEnum
@@ -18,6 +10,11 @@ CREATE TABLE "User" (
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
+    "passwordConfirm" TEXT NOT NULL,
+    "passwordChangedAt" TIMESTAMP(3),
+    "passwordResetToken" TEXT,
+    "passwordResetExpires" TIMESTAMP(3),
+    "active" BOOLEAN NOT NULL DEFAULT true,
     "role" "UserRole" NOT NULL DEFAULT 'Customer',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -27,10 +24,10 @@ CREATE TABLE "User" (
 
 -- CreateTable
 CREATE TABLE "Product" (
-    "id" UUID NOT NULL,
+    "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
-    "price" DECIMAL NOT NULL,
+    "price" DECIMAL(65,30) NOT NULL,
     "category" TEXT NOT NULL,
     "stock" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -41,7 +38,7 @@ CREATE TABLE "Product" (
 
 -- CreateTable
 CREATE TABLE "Customer" (
-    "id" UUID NOT NULL,
+    "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "address" TEXT NOT NULL,
@@ -54,8 +51,8 @@ CREATE TABLE "Customer" (
 
 -- CreateTable
 CREATE TABLE "Order" (
-    "id" UUID NOT NULL,
-    "customerId" UUID NOT NULL,
+    "id" TEXT NOT NULL,
+    "customerId" TEXT NOT NULL,
     "orderDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "status" "OrderStatus" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -66,11 +63,11 @@ CREATE TABLE "Order" (
 
 -- CreateTable
 CREATE TABLE "OrderItem" (
-    "id" UUID NOT NULL,
-    "orderId" UUID NOT NULL,
-    "productId" UUID NOT NULL,
+    "id" TEXT NOT NULL,
+    "orderId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
     "quantity" INTEGER NOT NULL,
-    "priceAtPurchase" DECIMAL NOT NULL,
+    "priceAtPurchase" DECIMAL(65,30) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -79,9 +76,6 @@ CREATE TABLE "OrderItem" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
-
--- CreateIndex
-CREATE INDEX "Product_category_idx" ON "Product"("category");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Customer_email_key" ON "Customer"("email");
@@ -94,4 +88,3 @@ ALTER TABLE "OrderItem" ADD CONSTRAINT "OrderItem_orderId_fkey" FOREIGN KEY ("or
 
 -- AddForeignKey
 ALTER TABLE "OrderItem" ADD CONSTRAINT "OrderItem_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
- 

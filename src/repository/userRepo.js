@@ -1,16 +1,12 @@
-const bcrypt = require('bcryptjs');
-const crypto = require('crypto');
-const { PrismaClient } = require('@prisma/client');
+const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
+const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 class UserRepository {
   // Create user
   async createUser(data) {
-    const { password, passwordConfirm, ...otherData } = data;
-
-    if (password !== passwordConfirm) {
-      throw new Error("Passwords do not match");
-    }
+    const { password, ...otherData } = data;
 
     // Hash the password before saving
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -20,23 +16,6 @@ class UserRepository {
         ...otherData,
         password: hashedPassword,
       },
-    });
-  }
-
-  // Get user by ID
-  async getUserById(id) {
-    return await prisma.user.findUnique({
-      where: { id },
-    });
-  }
-
-  // Update user password
-  async updateUserPassword(id, newPassword) {
-    const hashedPassword = await bcrypt.hash(newPassword, 12);
-
-    return await prisma.user.update({
-      where: { id },
-      data: { password: hashedPassword, passwordChangedAt: new Date() },
     });
   }
 
@@ -64,26 +43,11 @@ class UserRepository {
       where: { id: userId },
       data: {
         passwordResetToken: hashedResetToken,
-        passwordResetExpires: new Date(Date.now() + 10 * 60 * 1000),
+        passwordResetExpires: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes from now
       },
     });
 
     return resetToken;
-  }
-
-  // Check if password was changed after a certain timestamp
-  async changedPasswordAfter(userId, JWTTimestamp) {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { passwordChangedAt: true },
-    });
-
-    if (!user || !user.passwordChangedAt) {
-      return false;
-    }
-
-    const changedTimestamp = user.passwordChangedAt.getTime() / 1000;
-    return JWTTimestamp < changedTimestamp;
   }
 
   // Get all active users
@@ -92,6 +56,22 @@ class UserRepository {
       where: {
         active: true,
       },
+    });
+  }
+
+  // Update user role
+  async updateUserRole(userId, role) {
+    return await prisma.user.update({
+      where: { id: userId },
+      data: { role },
+    });
+  }
+
+  // Deactivate a user
+  async deactivateUser(userId) {
+    return await prisma.user.update({
+      where: { id: userId },
+      data: { active: false },
     });
   }
 }
